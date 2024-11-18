@@ -1,13 +1,13 @@
-###==========================================================================###
-# Function for gene set enrichment analysis using gometh in MissMethyl package #
-# By: Morteza P Kouhsar                                                        #
-###==========================================================================###
+###=========================================================================================================================================###
+# Modified gometh Function in missMethyl package to run enrichment analysis on a list of CpGs in KEGG, GO, Wikipathway and Reactome databases #
+# By: Morteza P Kouhsar                                                                                                                       #
+###=========================================================================================================================================###
 
 suppressMessages(library(missMethyl))
 suppressMessages(library(clusterProfiler))
 suppressMessages(library(ReactomePA))
 
-################################################################
+###############################################################################################################################################
 new.getKEGG <- function () 
 {
   GeneID.PathID <- limma::getGeneKEGGLinks(species.KEGG = "hsa", 
@@ -27,7 +27,7 @@ new.getKEGG <- function ()
 
 # environment(New.getKEGG) <- asNamespace('missMethyl')
 # assignInNamespace(".getKEGG", New.getKEGG, ns = "missMethyl")
-################################################################
+###############################################################################################################################################
 new.gometh <- function (sig.cpg, all.cpg = NULL, collection = c("GO", "KEGG", "WP" , "RA"), 
           array.type = c("450K", "EPIC"), plot.bias = FALSE, prior.prob = TRUE, 
           anno = NULL, equiv.cpg = TRUE, fract.counts = TRUE, genomic.features = c("ALL", 
