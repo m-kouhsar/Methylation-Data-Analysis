@@ -938,13 +938,13 @@ If your tissue is not blood, there is currently no appropriate algorithm to calc
 ```{r cellcomposition, echo=FALSE, warning= FALSE, message = FALSE}
 message("Estimating cell types...")
 counts=NA
-if(tolower(organ)=="blood"){
+if(tolower(SampleSheet$Organ)=="blood"){
   counts <- estimateCellCounts(RGset, compositeCellType ="Blood", cellTypes = c("CD8T","CD4T", "Bcell","Gran", "Mono","NK"), processMethod = "auto")
   save(counts, file=paste0(OutPrefix,".CellCounts.rdat"))
   message("CellCount created and saved in ", paste0(OutPrefix,".CellCounts.rdat"))
 }
 
-if(tolower(organ) == "brain"){
+if(tolower(SampleSheet$Organ) == "brain"){
 
   counts <- estimateCellCounts(RGset, compositeCellType ="DLPFC")
   save(counts, file=paste0(OutPrefix,".CellCounts.rdat"))
