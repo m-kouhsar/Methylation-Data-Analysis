@@ -1,10 +1,10 @@
-tissue_predictor <- function(betas){
+tissue_predictor <- function(betas,ref_dir_path){
   
-  load("~/ReferenceFiles/glmnet_class_predictor_new.rdat")
+  load(paste0(ref_dir_path,"/glmnet_class_predictor_new.rdat"))
   
   betas <- data.matrix(betas)
   
-  Probes <- read.csv("~/ReferenceFiles/new_coeffs.csv", stringsAsFactors = F)
+  Probes <- read.csv(paste0(ref_dir_path,"/new_coeffs.csv"), stringsAsFactors = F)
   ProbeIDs <- Probes$name
 
   present <- ProbeIDs %in% row.names(betas)

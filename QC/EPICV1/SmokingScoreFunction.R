@@ -1,6 +1,6 @@
-smokingscore<-function(betas){
+smokingscore<-function(betas, ref_dir_path){
   
-	load("~/ReferenceFiles/SmokingScoreRefData.rda")
+	load(paste0(ref_dir_path,"/SmokingScoreRefData.rda"))
 	#contains Illig_data, Illig_data_up and Illig_data_down
   
 	#subsetting own data 

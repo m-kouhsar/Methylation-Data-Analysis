@@ -761,7 +761,7 @@ source(paste0(ScriptDir,"/SmokingScoreFunction.R"))
 ## READ IN SMOKING DATA
 
 #function takes betas matrix and returns a vector of calculated smoking scores
-SmokingScore<-smokingscore(betas)
+SmokingScore<-smokingscore(betas,ref_dir_path=paste0(ScriptDir,"/References"))
 hist(SmokingScore, main="Histogram of Calculated Smoking Scores")
 QCmetrics<-cbind(QCmetrics, SmokingScore)
 
@@ -775,7 +775,7 @@ For the relatively young age of these samples they have high smoking scores, how
 #load function 
 source(paste0(ScriptDir,"/Tissue_predictor_function.R"))
 
-tissue.predictor <- tissue_predictor(betas)
+tissue.predictor <- tissue_predictor(betas,ref_dir_path=paste0(ScriptDir,"/References"))
 QCmetrics<-cbind(QCmetrics, tissue.predictor$Predicted_Tissue)
 ggplot(data = QCmetrics, aes(x=Organ, fill= QCmetrics$Predicted_Tissue))+
  geom_bar( position= position_dodge())+
