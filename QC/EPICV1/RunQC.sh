@@ -17,9 +17,9 @@ OutDir="$(dirname $OutPrefix)"
 OutName="$(basename $OutPrefix)"
 mkdir -p $OutDir
 
-Rscript -e "rmarkdown::render('${ScriptDir}/DNAm_QC_EPIC_V1.Rmd', output_dir='${OutDir}',output_file='${OutName}_DNAm_QC_EPIC_V1.html', \
-            output_options=list(pandoc_args=c('--include-before-body=${ScriptDir}/References/DNAm_QC_Header.html', '--include-after-body=${ScriptDir}/References/DNAm_QC_Header.html')) ,\
+Rscript -e "rmarkdown::render('$ScriptDir/DNAm_QC_EPIC_V1.Rmd', output_dir='${OutDir}',output_file='${OutName}_DNAm_QC_EPIC_V1.html',\
+            output_options = list(pandoc_args = c(paste0('--include-before-body=', '$ScriptDir/References/DNAm_QC_Header.html'),paste0('--include-after-body=','$ScriptDir/References/DNAm_QC_Header.html'))), \
             params=list(Title='${Title}',Study_Name='${Study_Name}',User_Array='${User_Array}',User_QC='${User_QC}'))" \
-        --args "${ScriptDir}" "${OutPrefix}" "${idatPath}" "${SampleSheet}" "${IntensityThreshold}" 
+            --args "${ScriptDir}" "${OutPrefix}" "${idatPath}" "${SampleSheet}" "${IntensityThreshold}" 
 
 
