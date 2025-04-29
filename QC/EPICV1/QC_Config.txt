@@ -1,0 +1,13 @@
+
+ScriptDir="/lustre/projects/Research_Project-191391/Morteza/github/Methylation-Data-Analysis/QC/EPICV1"
+OutPrefix="/lustre/projects/Research_Project-191391/Morteza/KCL_FACS/Results/QC/KCL_FACS"
+idatPath="/lustre/projects/Research_Project-191391/Morteza/KCL_FACS/Raw/idats"
+SampleSheet="/lustre/projects/Research_Project-191391/Morteza/KCL_FACS/Raw/FACS_samples_all_plates_combined.csv"
+
+Title="DNA Methylation QC for KCL FACS data"
+Study_Name="AD Psychosis (KCL FACS Data)"
+User_Array="Luke Weymouth"
+User_QC="Morteza Kouhsar"
+
+IntensityThreshold=750
+
