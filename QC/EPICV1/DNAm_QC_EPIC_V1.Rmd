@@ -1,17 +1,17 @@
 ---
-output: 
-  html_document:
-    toc: true
-    toc_float: true
-    includes:
-        before_body: /lustre/projects/Research_Project-191391/Morteza/KCL_FACS/Scripts/QC/EPICV1/DNAm_QC_Header.html
-        after_body: /lustre/projects/Research_Project-191391/Morteza/KCL_FACS/Scripts/QC/EPICV1/DNAm_QC_Header.html
 params: 
   Title: "DNA Methylation Data Quality Control"
   Study_Name: ""
   User_Array: ""
   User_QC: ""
 title: "`r params$Title`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    includes:
+        before_body: ""
+        after_body: ""
 
 ---
 
@@ -45,6 +45,10 @@ suppressMessages(library(gplots))
 suppressMessages(library("colorRamps"))
 suppressMessages(library(IlluminaHumanMethylationEPICanno.ilm10b2.hg19))
 suppressMessages(library("IlluminaHumanMethylationEPICanno.ilm10b4.hg19"))
+suppressMessages(library("IlluminaHumanMethylation450kmanifest"))
+suppressMessages(library("FlowSorted.DLPFC.450k"))
+suppressMessages(library("FlowSorted.Blood.450k"))
+suppressMessages(library("FlowSorted.CordBlood.450k"))
 
 ```
 
@@ -55,12 +59,12 @@ message("Getting input arguments...")
 
 args<-commandArgs(trailingOnly = T)
 
-WorkingDir=args[2]
-ScriptDir=args[3]
-OutPrefix=args[4]
-idatPath=args[5]
-SampleSheet_file=args[6]
-IntensityThreshold=as.numeric(args[7])
+#WorkingDir=args[2]
+ScriptDir=args[2]
+OutPrefix=args[3]
+idatPath=args[4]
+SampleSheet_file=args[5]
+IntensityThreshold=as.numeric(args[6])
 
 Mset_file=ifelse(is.na(OutPrefix),"",paste0(OutPrefix,"_EPICV1.Mset.rdat"))
 RGset_file=ifelse(is.na(OutPrefix),"",paste0(OutPrefix,"_EPICV1.RGset.rdat"))
@@ -70,7 +74,7 @@ Normalised=ifelse(is.na(OutPrefix),"",paste0(OutPrefix,"_EPICV1.Normalized.rdat"
 CellCount=ifelse(is.na(OutPrefix),"",paste0(OutPrefix,"_EPICV1.CellCount.rdat"))
 
 message("Input arguments:")
-message("    Working Directory: ",WorkingDir)
+#message("    Working Directory: ",WorkingDir)
 message("    Script Directory: ",ScriptDir)
 message("    Output Prefix: ",OutPrefix)
 message("    idat files Directory: ",idatPath)
@@ -82,7 +86,7 @@ message("    Passed samplesSheet file: ",SamplesPassed)
 message("    Failed samplesSheet file: ",SamplesFailed)
 message("    Normalized object file: ",Normalised)
 
-knitr::opts_knit$set(root.dir = WorkingDir)
+#knitr::opts_knit$set(root.dir = WorkingDir)
 ```
 
 ```{r LoadingData, cache = FALSE, echo = F, warning = F, message = NA}
@@ -936,22 +940,41 @@ DNA methylation varies between different cell types, and so the composition of c
 If your tissue is not blood, there is currently no appropriate algorithm to calculate you cell propotions for your tissue of interest. Therefore, this part of the report  will not be run and we will move along to the next part of the report. 
 
 ```{r cellcomposition, echo=FALSE, warning= FALSE, message = FALSE}
+
 message("Estimating cell types...")
-counts=NA
-if(tolower(SampleSheet$Organ)=="blood"){
-  counts <- estimateCellCounts(RGset, compositeCellType ="Blood", cellTypes = c("CD8T","CD4T", "Bcell","Gran", "Mono","NK"), processMethod = "auto")
+
+counts=matrix()
+flag = F
+Organ <- SampleSheet$Organ[!(is.na(SampleSheet$Organ) | SampleSheet$Organ == "NA" | SampleSheet$Organ == "NAN")]
+
+if(all(tolower(Organ)=="blood")){
+  
+  counts <- estimateCellCounts(RGset, compositeCellType ="Blood", cellTypes = c("CD8T","CD4T", "NK","Bcell","Mono","Gran"), processMethod = "auto")
+  flag = T
   save(counts, file=paste0(OutPrefix,".CellCounts.rdat"))
   message("CellCount created and saved in ", paste0(OutPrefix,".CellCounts.rdat"))
-}
-
-if(tolower(SampleSheet$Organ) == "brain"){
-
-  counts <- estimateCellCounts(RGset, compositeCellType ="DLPFC")
+  
+} else if(all(tolower(Organ) == "brain")){
+  
+  counts <- estimateCellCounts(RGset, compositeCellType ="DLPFC",cellTypes=c("NeuN_neg" ,"NeuN_pos"))
+  flag=T
   save(counts, file=paste0(OutPrefix,".CellCounts.rdat"))
   message("CellCount created and saved in ", paste0(OutPrefix,".CellCounts.rdat"))
+  
+}else if(all(tolower(Organ)=="cordblood")){
+  
+  counts <- estimateCellCounts(RGset, compositeCellType ="CordBlood",cellTypes=c("Bcell", "CD4T", "CD8T", "Gran", "Mono", "Neu", "nRBC"))
+  flag=T
+  save(counts, file=paste0(OutPrefix,".CellCounts.rdat"))
+  message("CellCount created and saved in ", paste0(OutPrefix,".CellCounts.rdat"))
+  
+}else {
+  
+  message("Estimating cell type failed: Multiple/No Organ presented in samplesheet file!")
+  
 }
 
-if(!is.na(counts)){
+if(flag){
   counts<-counts[match(SampleSheet$Basename, rownames(counts)),]
   QCmetrics<-cbind(QCmetrics, counts)
   
