@@ -9,9 +9,6 @@ output:
   html_document:
     toc: true
     toc_float: true
-    includes:
-        before_body: ""
-        after_body: ""
 
 ---
 
@@ -86,7 +83,6 @@ message("    Passed samplesSheet file: ",SamplesPassed)
 message("    Failed samplesSheet file: ",SamplesFailed)
 message("    Normalized object file: ",Normalised)
 
-#knitr::opts_knit$set(root.dir = WorkingDir)
 ```
 
 ```{r LoadingData, cache = FALSE, echo = F, warning = F, message = NA}
