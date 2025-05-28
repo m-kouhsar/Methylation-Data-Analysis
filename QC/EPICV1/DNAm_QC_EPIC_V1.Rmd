@@ -46,6 +46,7 @@ suppressMessages(library("IlluminaHumanMethylation450kmanifest"))
 suppressMessages(library("FlowSorted.DLPFC.450k"))
 suppressMessages(library("FlowSorted.Blood.450k"))
 suppressMessages(library("FlowSorted.CordBlood.450k"))
+suppressMessages(library(CETYGO))
 
 ```
 
@@ -89,7 +90,7 @@ message("    Normalized object file: ",Normalised)
 
 message("Reading SampleSheet file...")
 
-SampleSheet<-read.csv(file = SampleSheet_file, stringsAsFactors = FALSE, sep = ",", na.strings = "")
+SampleSheet<-read.csv(file = SampleSheet_file, stringsAsFactors = FALSE, sep = ",", na.strings = c("","NA"))
 SampleSheet$Sex <- trimws(SampleSheet$Sex)
 SampleSheet$Sex <- as.factor(SampleSheet$Sex)
 
@@ -938,30 +939,50 @@ If your tissue is not blood, there is currently no appropriate algorithm to calc
 ```{r cellcomposition, echo=FALSE, warning= FALSE, message = FALSE}
 
 message("Estimating cell types...")
-
-counts=matrix()
+source(paste0(ScriptDir,"/CETYGO.R"))
 flag = F
 Organ <- SampleSheet$Organ[!(is.na(SampleSheet$Organ) | SampleSheet$Organ == "NA" | SampleSheet$Organ == "NAN")]
-
+betas <- betas(msetEPIC)
 if(all(tolower(Organ)=="blood")){
   
-  counts <- estimateCellCounts(RGset, compositeCellType ="Blood", cellTypes = c("CD8T","CD4T", "NK","Bcell","Mono","Gran"), processMethod = "auto")
+  CT.CETYGO = adultBloodCETYGO(betas)
+  print(CT.CETYGO$Plot1)
+  print(CT.CETYGO$Plot2)
+  CT.minfi <- estimateCellCounts(RGset, compositeCellType ="Blood", cellTypes = c("CD8T","CD4T", "NK","Bcell","Mono","Gran"), processMethod = "auto")
   flag = T
-  save(counts, file=paste0(OutPrefix,".CellCounts.rdat"))
+  save(CT.minfi, CT.CETYGO, file=paste0(OutPrefix,".CellCounts.rdat"))
   message("CellCount created and saved in ", paste0(OutPrefix,".CellCounts.rdat"))
   
 } else if(all(tolower(Organ) == "brain")){
   
-  counts <- estimateCellCounts(RGset, compositeCellType ="DLPFC",cellTypes=c("NeuN_neg" ,"NeuN_pos"))
+  # if(all(is.na(SampleSheet$Cell_Type))){
+  #   CT.obj = adultBrainCETYGO(betas, "bulk")
+  # }else{
+  #   for(cell in levels(sampleSheet$Cell_Type)) {
+  #   cellSampleSheet <- sampleSheet[which(sampleSheet$Cell_Type == cell), ]
+  #   cellBetas <- betas[, colnames(betas) %in% cellSampleSheet$Basename]
+  #   adultBrainCETYGO(cellBetas, cell)
+  #   }
+  # }
+  
+  CT.CETYGO = adultBrainCETYGO(betas, "bulk")
+  CETYGO = CT.CETYGO$Data
+  do.call(grid.arrange, c(CT.CETYGO$Plot1, ncol = 4))
+  do.call(grid.arrange, c(CT.CETYGO$Plot2, ncol = 4))
+  
+  CT.minfi <- estimateCellCounts(RGset, compositeCellType ="DLPFC",cellTypes=c("NeuN_neg" ,"NeuN_pos"))
+  
   flag=T
-  save(counts, file=paste0(OutPrefix,".CellCounts.rdat"))
+  
+  save(CT.minfi , CT.CETYGO, file=paste0(OutPrefix,".CellCounts.rdat"))
+  
   message("CellCount created and saved in ", paste0(OutPrefix,".CellCounts.rdat"))
   
 }else if(all(tolower(Organ)=="cordblood")){
   
-  counts <- estimateCellCounts(RGset, compositeCellType ="CordBlood",cellTypes=c("Bcell", "CD4T", "CD8T", "Gran", "Mono", "Neu", "nRBC"))
+  CT.minfi <- estimateCellCounts(RGset, compositeCellType ="CordBlood",cellTypes=c("Bcell", "CD4T", "CD8T", "Gran", "Mono", "Neu", "nRBC"))
   flag=T
-  save(counts, file=paste0(OutPrefix,".CellCounts.rdat"))
+  save(CT.minfi, file=paste0(OutPrefix,".CellCounts.rdat"))
   message("CellCount created and saved in ", paste0(OutPrefix,".CellCounts.rdat"))
   
 }else {
@@ -970,19 +991,24 @@ if(all(tolower(Organ)=="blood")){
   
 }
 
+
+
 if(flag){
-  counts<-counts[match(SampleSheet$Basename, rownames(counts)),]
-  QCmetrics<-cbind(QCmetrics, counts)
+  CT.minfi<-CT.minfi[match(SampleSheet$Basename, rownames(CT.minfi)),]
+  QCmetrics<-cbind(QCmetrics, CT.minfi)
+  
+  CT.CETYGO.IDOL <- CT.CETYGO$Data$IDOL[[2]][match(SampleSheet$Basename, rownames(CT.CETYGO$Data$IDOL[[2]])),]
+  QCmetrics<-cbind(QCmetrics, CT.CETYGO.IDOL)
   
   ##Add cell density plots
-  counts.m <- melt(counts,"colnames")
-  i <- sapply(counts.m, is.factor) #gets rid of factos in data frame
-  counts.m[i] <- lapply(counts.m[i], as.character)
-  colnames(counts.m) <- c("Samples","Cell","Proportion")
+  CT.minfi.m <- melt(CT.minfi,"colnames")
+  i <- sapply(CT.minfi.m, is.factor) #gets rid of factos in data frame
+  CT.minfi.m[i] <- lapply(CT.minfi.m[i], as.character)
+  colnames(CT.minfi.m) <- c("Samples","Cell","Proportion")
   
-  boxplot(counts, use.cols=T, main="Boxplot of Estimated Cell Proportions")
+  boxplot(CT.minfi, use.cols=T, main="Boxplot of Estimated Cell Proportions")
   
-  ggplot(counts.m, aes(x = Proportion)) +
+  ggplot(CT.minfi.m, aes(x = Proportion)) +
     geom_density(alpha = 0.5,color="darkblue", fill="lightblue") +
     facet_wrap( ~ Cell) +
     labs(x = "", y = "Density",
