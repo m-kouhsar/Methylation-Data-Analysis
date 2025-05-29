@@ -932,9 +932,7 @@ There should be no points failing the second normalisation step as they will hav
 
 
 # Cell Composition
-DNA methylation varies between different cell types, and so the composition of cell types can significantly affect the methylation of samples. Therefore, estimations of cell-type composition is an important variable to consider when analysing this type of data.In order to estimate the blood cell proportions, we use an function estimateCellCounts in the R package Minfi, developed by Hansen et al. We will estimate cell types CD8T, CD4T, Bcells, Granulocytes, Monocytes and NK cells. Samples that have failed until this stage will not be included in calculated cell proportions.
-
-If your tissue is not blood, there is currently no appropriate algorithm to calculate you cell propotions for your tissue of interest. Therefore, this part of the report  will not be run and we will move along to the next part of the report. 
+DNA methylation varies between different cell types, and so the composition of cell types can significantly affect the methylation of samples. Therefore, estimations of cell-type composition is an important variable to consider when analysing this type of data.In order to estimate the cell proportions, we use an function estimateCellCounts in the R package Minfi, developed by Hansen et al and CETYGO package developped by Hannon et al. For more information you can visit https://github.com/ejh243/CETYGO.  
 
 ```{r cellcomposition, echo=FALSE, warning= FALSE, message = FALSE}
 
@@ -946,8 +944,13 @@ betas <- betas(msetEPIC)
 if(all(tolower(Organ)=="blood")){
   
   CT.CETYGO = adultBloodCETYGO(betas)
-  print(CT.CETYGO$Plot1)
   print(CT.CETYGO$Plot2)
+  
+  print(CT.CETYGO$Plot1)
+  
+  CT.CETYGO.data <- CT.CETYGO$Data[match(SampleSheet$Basename, rownames(CT.CETYGO$Data)),]
+  QCmetrics<-cbind(QCmetrics, CT.CETYGO.data)
+  
   CT.minfi <- estimateCellCounts(RGset, compositeCellType ="Blood", cellTypes = c("CD8T","CD4T", "NK","Bcell","Mono","Gran"), processMethod = "auto")
   flag = T
   save(CT.minfi, CT.CETYGO, file=paste0(OutPrefix,".CellCounts.rdat"))
@@ -967,8 +970,14 @@ if(all(tolower(Organ)=="blood")){
   
   CT.CETYGO = adultBrainCETYGO(betas, "bulk")
   CETYGO = CT.CETYGO$Data
-  do.call(grid.arrange, c(CT.CETYGO$Plot1, ncol = 4))
-  do.call(grid.arrange, c(CT.CETYGO$Plot2, ncol = 4))
+  
+  print(CT.CETYGO$Plot2[[2]] + scale_x_discrete(labels=c("IRF8Pos","NeuNPos","SOX10Pos","Trip_Neg")))
+  
+  print(CT.CETYGO$Plot1[[2]])
+  
+  CT.CETYGO.IDOL <- CT.CETYGO$Data$IDOL[[2]][match(SampleSheet$Basename, rownames(CT.CETYGO$Data$IDOL[[2]])),]
+  colnames(CT.CETYGO.IDOL)[1:4] <- c("IRF8Pos","NeuNPos","SOX10Pos","Trip_Neg")
+  QCmetrics<-cbind(QCmetrics, CT.CETYGO.IDOL)
   
   CT.minfi <- estimateCellCounts(RGset, compositeCellType ="DLPFC",cellTypes=c("NeuN_neg" ,"NeuN_pos"))
   
@@ -996,9 +1005,6 @@ if(all(tolower(Organ)=="blood")){
 if(flag){
   CT.minfi<-CT.minfi[match(SampleSheet$Basename, rownames(CT.minfi)),]
   QCmetrics<-cbind(QCmetrics, CT.minfi)
-  
-  CT.CETYGO.IDOL <- CT.CETYGO$Data$IDOL[[2]][match(SampleSheet$Basename, rownames(CT.CETYGO$Data$IDOL[[2]])),]
-  QCmetrics<-cbind(QCmetrics, CT.CETYGO.IDOL)
   
   ##Add cell density plots
   CT.minfi.m <- melt(CT.minfi,"colnames")
@@ -1051,7 +1057,7 @@ SampleSheet<-QCmetrics[!SamplesFail,]
 
 
 
-SampleSheet <- subset(SampleSheet, select = - c(Name_QC,Name_lab,Empty, position, Control, Intensity,Bisulphite, PredictedSex,MismatchSex,PredictedAge,pFilterPass,NormV))
+# SampleSheet <- subset(SampleSheet, select = - c(Name_QC,Name_lab,Empty, position, Control, Intensity,Bisulphite, PredictedSex,MismatchSex,PredictedAge,pFilterPass,NormV))
 
 
 betas<-betas[,match(SampleSheet$Basename, colnames(betas))]
