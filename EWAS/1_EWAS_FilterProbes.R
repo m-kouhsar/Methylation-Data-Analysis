@@ -2,8 +2,6 @@
 print("Loading requiered libraries...")
 
 suppressMessages(library(data.table))
-suppressMessages(library(WGCNA))
-suppressMessages(library(stringr))
 
 args = commandArgs(T)
 
