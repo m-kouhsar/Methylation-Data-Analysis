@@ -1,5 +1,5 @@
 
-print("Loading requiered libraries...")
+message("Loading requiered libraries...")
 
 suppressMessages(library(data.table))
 
