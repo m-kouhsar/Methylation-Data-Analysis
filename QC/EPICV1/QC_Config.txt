@@ -1,11 +1,40 @@
-ScriptDir=/lustre/projects/Research_Project-191391/Morteza/github/Methylation-Data-Analysis/QC/EPICV1
-OutPrefix=/lustre/projects/Research_Project-191391/Morteza/KCL_FACS/Results/QC/KCL_FACS
-idatPath=/lustre/projects/Research_Project-191391/Morteza/KCL_FACS/Raw/idats
-SampleSheet="/lustre/projects/Research_Project-191391/Morteza/KCL_FACS/Raw/FACS_samples_all_plates_combined.csv"
+##############################################################################################################################################################################################################################
+#                         Methylation QC for EPIC Version 1 array                                                                                                                                                            #
+#                                                                                                                                                                                                                            #
+# Input parameters description:                                                                                                                                                                                              #
+#        ScriptDir: Directory of all R scripts                                                                                                                                                                               #
+#        OutPrefix: Output files prefix                                                                                                                                                                                      #
+#        idatPath: Directory contains idat files                                                                                                                                                                             #
+#        SampleSheet: Path of csv file contains the sample information. The Basename column will be used to find and read idat files from the idatPath                                                                       #
+#                     The folowing columns must be presented in this file (names are case sensitive):                                                                                                                        #
+#                                                                                                                                                                                                                            #
+#                     Basename: Basename IDs like "205854150107_R03C01" (SentrixID_Position). The readEPIC function in wateRmelon package will use these barcodes to find and read idat files in idatPath.                   #
+#                     Meth_Control: Must be "yes" for Methylation Control samples                                                                                                                                            #
+#                     Age: Samples age                                                                                                                                                                                       #
+#                     Sex: Samples gender                                                                                                                                                                                    #
+#                     Organ: Samples organ (blood or brain) to estimate cell types                                                                                                                                           #
+#                     Plate: Methylation plate                                                                                                                                                                               #
+#                                                                                                                                                                                                                            #
+#        Optional_Batches: Other columns in the SampleSheet file that you need to generate plots on them (for example, Cohort). Must be separated by ',' (e.g. Tissue,Cohort). Must be presented in SampleSheet columns      #
+#        Title: Title of the report (will be present in the html report created by the pipeline)                                                                                                                             #
+#        Study_Name: Will be presented in the html report                                                                                                                                                                    #
+#        Operator_Array: To save in the html report                                                                                                                                                                          #
+#        Operator_QC: To save in the html report                                                                                                                                                                             #
+#        IntensityThreshold: A threshold to filter out samples with low intensity                                                                                                                                            #
+##############################################################################################################################################################################################################################             
 
-Title="DNA Methylation QC for KCL FACS Data"
-Study_Name="AD Psychosis"
-User_Array="Luke Weymouth"
-User_QC="Morteza Kouhsar"
+
+ScriptDir="/lustre/projects/Research_Project-191391/Morteza/Lachlan/Scripts/Methylation_Data_Analysis/QC/EPICV1/"
+OutPrefix="/lustre/projects/Research_Project-191391/Morteza/Lachlan/Results/QC/Immunisation"
+idatPath="/lustre/projects/Research_Project-T111004/Lachlan/Inflammation/Infection_Immunisation/Inflammation_IDATS"
+SampleSheet="/lustre/projects/Research_Project-191391/Morteza/Lachlan/Raw/Pheno_Imm_Run.csv"
+
+Optional_Batches="Run,Batch,Brain_Bank"
+
+Title="DNA Methylation QC for Immunisation Study"
+Study_Name="Immunisation Study"
+Operator_Array="Lachlan Ford MacBean"
+Operator_QC="Morteza Kouhsar"
 
 IntensityThreshold=750
+
