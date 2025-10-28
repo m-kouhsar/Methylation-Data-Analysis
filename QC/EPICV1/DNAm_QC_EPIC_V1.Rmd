@@ -123,23 +123,23 @@ if(file.exists(file=  Mset_file)){
   message(paste("Loading Mset:", Mset_file))
   load(file = Mset_file)
 } else {
-  message("Generating mset object...")
+  message("Reading idat files to create the mset object...")
   msetEPIC <- readEPIC(idatPath=idatPath, barcodes=SampleSheet$Basename, parallel = T, force=T)
+  message("Writing mset in ",Mset_file , "...")
   save(msetEPIC, file = Mset_file)
-  message(paste("Mset created and saved as", Mset_file))
 }
 
 if(file.exists(file= RGset_file)){
   message(paste("Loading RGset:", RGset_file))
   load(file= RGset_file)
 } else{
-  message("Generating rgset object...")
+  message("Reading idat files to create the rgset object...")
   # For some data when we run pfilter function on mset, it seems it is unable to check/calculate the bead counts properly
   # and remove all probes. So, to resolve this issue, I set extended=TRUE in read.metharray.exp function to get an extended 
   # rgset and then apply the pfilter to the extended rgset
   RGset <- read.metharray.exp(base = idatPath, targets = SampleSheet, force = TRUE,extended = T,verbose = F)
+  message("Writing rgset in ", RGset_file , "...")
   save(RGset, file =RGset_file )
-  message(paste("RGset created and saved as", RGset_file))
 }
 
 ```
@@ -871,7 +871,7 @@ The 'qual' function in the wateRmelon package can be used to assess the degree o
 ```{r qual, echo = FALSE}
 
 plot(normv[,1:2], main = "Normalisation Violence")
-boxplot(qual_df$rmsd, main = "Normalisation Violence", ylab = "rmsd")
+boxplot(normv$rmsd, main = "Normalisation Violence", ylab = "rmsd")
 abline(h = threshold, col = "red", lty = 2, lwd = 2)
 
 #SamplesFail<-as.logical(rep("FALSE", nrow(SampleSheet)))
