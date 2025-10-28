@@ -850,29 +850,41 @@ msetEPIC.previo<-msetEPIC[,!SamplesFail]
 #then use dasen to normalise
 msetEPIC.dasen.previo<-dasen(msetEPIC.previo)
 
-```
-
-The 'qual' function in the wateRmelon package can be used to assess the degree of difference between normalised and raw betas
-
-```{r qual, echo = FALSE}
 betas <- betas(msetEPIC.previo)
 betas.dasen <- betas(msetEPIC.dasen.previo)
 
 normv <- qual(betas, betas.dasen)
-plot(normv[,1:2], main = "Normalisation Violence")
-Out<-normv[which(normv[,1]>0.08),]
 
+Q1 <- quantile(normv$rmsd, 0.25)
+Q3 <- quantile(normv$rmsd, 0.75)
+
+# Calculate the Interquartile Range (IQR)
+IQR <- Q3 - Q1
+
+# Define the upper threshold for outliers
+# Anything above this value is considered an outlier
+threshold <- Q3 + (1.5 * IQR)
+```
+
+The 'qual' function in the wateRmelon package can be used to assess the degree of difference between normalised and raw betas. Those samples with Root Mean Square Deviation (RMSD) > `r threshold` will be filter out.
+
+```{r qual, echo = FALSE}
+
+plot(normv[,1:2], main = "Normalisation Violence")
+boxplot(qual_df$rmsd, main = "Normalisation Violence", ylab = "rmsd")
+abline(h = threshold, col = "red", lty = 2, lwd = 2)
 
 #SamplesFail<-as.logical(rep("FALSE", nrow(SampleSheet)))
-SamplesFail[which(normv[,1] >0.08)]<-TRUE
+SamplesFail[which(normv[,1] >threshold)]<-TRUE
 
 identical(rownames(QCmetrics), colnames(betas.dasen))
 
 QCmetrics <- as.data.frame(as.matrix(QCmetrics))
 
 QCmetrics$NormV <- normv$rmsd[match(rownames(QCmetrics),rownames(normv))]
+QCmetrics$NormV.Passed <- (QCmetrics$NormV  <= threshold)
 
-Step9<-c(sum(QCmetrics$NormV >0.08, na.rm =TRUE),sum(SamplesFail))
+Step9<-c(sum(QCmetrics$NormV >threshold, na.rm =TRUE),sum(SamplesFail))
 Stepsummary<-cbind(Stepsummary,Step9)
 
 ```
