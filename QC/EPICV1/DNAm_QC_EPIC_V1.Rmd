@@ -186,7 +186,7 @@ Stepsummary<-as.data.frame(matrix(ncol=0, nrow=2))
 rownames(Stepsummary)<-c("Failed This Step", "Total Failed")
 ```
 
-The phenotype file containing the sample information was loaded into R. Then the methylation data for the `r nrow(SampleSheet)` samples were loaded into a methylumiset. This contains `r nrow(SampleSheet[SampleSheet$Control,])` `r params$Study_Name` and `r nrow(SampleSheet[SampleSheet$Control,])` fully methylated control samples.
+The phenotype file containing the sample information was loaded into R. Then the methylation data for the `r nrow(SampleSheet)` samples were loaded into a methylumiset. This contains `r nrow(SampleSheet[!(SampleSheet$Control),])` `r params$Study_Name` and `r nrow(SampleSheet[SampleSheet$Control,])` fully methylated control samples.
 
 # Check Signal Intensities
 The intensity check is the biggest indicator of sample quality. The median methylated signal intensity and unmethylated signal intensity for each sample is calculcated.
@@ -451,8 +451,7 @@ colnames(Sexplot_data)[colnames(Sexplot_data)=="QCmetrics$Sex"] <- "Reported Sex
 #replace blanks with NA
 Sexplot_data$`Reported Sex`[Sexplot_data$`Reported Sex` == ""] <- "NA"
 
-ggplot(Sexplot_data, aes(Sexplot_data$xMed,Sexplot_data$yMed,
-                                    colour = Sexplot_data$`Reported Sex`)) +
+ggplot(Sexplot_data, aes(xMed,yMed,colour = `Reported Sex`)) +
                   geom_point() +
                   labs(x= "X Chr, median total intensity (log2)",
                        y ="Y Chr, median total intensity (log2)",
@@ -480,7 +479,7 @@ print(Stepsummary)
 If there is SNP data available the reported sex will be comapred to the sex predicted using the SNP data and samples which do not match will be removed. 
 
 If SNP data is not available this step will be ignored, as there is no fam file for this data this step will be ignored however it will be left here as referance.
--->
+
 
 ```{R check sex agaisnt genotype sex, include=FALSE}
 # if(!is.na(SampleSheet[1,"DNA_IID"])){
@@ -507,7 +506,7 @@ If SNP data is not available this step will be ignored, as there is no fam file 
 # QCmetrics$Mismatch_predicted_geno_SeX<-PredictedSex!= QCmetrics$geno_sex
 # }
 ```
-
+-->
 
 
 <!--
@@ -516,7 +515,7 @@ If SNP data is not available this step will be ignored, as there is no fam file 
 On the EPIC array there are 59 SNP probes. If  have SNP data is present, we can compare the methylation on these SNP probes to the samples genotypes to confirm samples are from the expected individual.
 
 If SNP data is not available this step will be ignored.
--->
+
 ```{r load genotypes, include=FALSE}
 #Skip Genotyping if there are more than unique(plates) NA's. EG if there are three plates there should only be three NA's. If more than three NA's in the DNA_IID column assumption is made that there are no genotyping data available.
 
@@ -574,10 +573,11 @@ If SNP data is not available this step will be ignored.
 # }
 
 ```
+-->
 <!--
 To ensure that the correct samples are loaded onto the EPIC array and that it matches their genotyping information, we will calculate the correlation between SNPs on the EPIC array and on the genotyping array. Correlation values lower than 0.8 suggests that the samples from the methylation and genotyping do not match. These samples will need to be further investigated to understanding what issues may have risen such as mislabelling samples or sample switch on either arrays. 
 First, we will check the number of SNPs that individuals share between the EPIC and the genotyping array. The SNPs on the DNAm array and the SNPs on the genotyping array may not always match for all individuals, the table below is the summary for this study. 
--->
+
 ```{r ngenos, echo = FALSE, include=FALSE}
 # if(exists('nGenos')){
 # tblnGenos <- as.data.frame(table(nGenos))
@@ -591,10 +591,10 @@ First, we will check the number of SNPs that individuals share between the EPIC 
 # }
 
 ```
-
+-->
 <!--
 Now we can check the correlation between the methylation and genotyped samples.
--->
+
 ```{r check genotypes correlations, include=FALSE}
 # if(exists('geno')){
 #   #check genotypes correlation with methylation per sample
@@ -609,9 +609,10 @@ Now we can check the correlation between the methylation and genotyped samples.
 
   
 ```
+-->
 <!--
 A failed sample is where the methyaltion and genotype correlation is low for a SNP, an example is provided here below.
--->
+
 ```{r examplefailedgenotypes, include=FALSE}
 # if(!is.na(SampleSheet[1,"DNA_IID"])){
 # par(mfrow=c(1,2))
@@ -642,6 +643,7 @@ A failed sample is where the methyaltion and genotype correlation is low for a S
 ```{r Stepsummary4}
 #print(Stepsummary)
 ```
+-->
 <!--
 ## Genetic correlations
 
@@ -650,7 +652,7 @@ The 59 SNP probes on the array can also be used to estimate genetic correlations
 This small number of probes means that only identical samples (such as samples from the same individual, MZ twins, individual brainIDs or samples duplicated by error) can be identified and no lower proportion of genetic relatedness (such as siblings) can be inferred.
 
 If your study is not a paired design this step will be skipped
--->
+
 ```{r calculate snpCor, include=FALSE}
 
 
@@ -663,12 +665,12 @@ If your study is not a paired design this step will be skipped
 
 
 ```
-
+-->
 <!--
 
 ## Checking samples from unrelated individuals
 This study design assumes that each sample is completely unqiue and that there should be no duplicates with any other sample. The SNPs on the DNAm array can be used to predicted that no sample correlates with another. For each sample, we can find its maximum correlation with any other sample, and plot a histogram of the results. Any samples with a threshold greater than 0.8 indicates that they are duplicates.
--->
+
 ```{r checkingunrelatedcor, include=FALSE}
 # Individual_IDs<-unique(SampleSheet$Family_ID) 
 # unrelatedcors<-snpCor
@@ -683,9 +685,10 @@ This study design assumes that each sample is completely unqiue and that there s
 # 
 # #Sometimes samples are duplicates and we can check that there is also duplicates in the genotype data if necessary.
 ```
+-->
 <!--
 `r #length(which(maxunrelatedcors>0.8))` samples have a maximum correlation > 0.8 with another unrelated sample.
--->
+
 ```{r update QCmetrics6, include=FALSE}
 # #To ensure that samples are truly duplicates we will check geno and methylation samples are also duplicates
 # 
@@ -712,7 +715,7 @@ This study design assumes that each sample is completely unqiue and that there s
 # print(Stepsummary)
 
 ``` 
-
+-->
 
 # Age Prediction
 The age of samples can be predicted from their methylation data using Horvath's Coefficients and compared to the samples' reported ages. 
@@ -732,7 +735,6 @@ ggplot(data = data.frame(x=PredictedAge , y=ReportedAge),aes(x = x , y = y))+
   ggtitle("Reported Age against Predicted Age")+
   xlab("Predicted")+
   ylab("Reported")+
-  ylim(0,100)+
   theme_bw()
 
 QCmetrics<-cbind(QCmetrics, PredictedAge)
@@ -764,20 +766,22 @@ QCmetrics<-cbind(QCmetrics, SmokingScore)
 
 For the relatively young age of these samples they have high smoking scores, however the smoking score is known to over predict the score in slavia/ bucccal samples 
 
+<!--
 # Tissue Prediction
-
 ```{r Tissue Prediction, echo =FALSE, message=FALSE, results= 'hide'}
+
+#The model created by someone les and it doesn't work properlu for Brain samples. So, I removed this step. 
 #load function 
-source(paste0(ScriptDir,"/Tissue_predictor_function.R"))
-
-tissue.predictor <- tissue_predictor(betas,ref_dir_path=paste0(ScriptDir,"/References"))
-QCmetrics$Predicted_Tissue <- tissue.predictor$Predicted_Tissue
-ggplot(data = QCmetrics, aes(x=Organ, fill= Predicted_Tissue))+
- geom_bar( position= position_dodge())+
- labs(x = "Reported Tissue", fill= "Predicted Tissue") +
- theme_minimal()
+# source(paste0(ScriptDir,"/Tissue_predictor_function.R"))
+# 
+# tissue.predictor <- tissue_predictor(betas,ref_dir_path=paste0(ScriptDir,"/References"))
+# QCmetrics$Predicted_Tissue <- tissue.predictor$Predicted_Tissue
+# ggplot(data = QCmetrics, aes(x=Organ, fill= Predicted_Tissue))+
+#  geom_bar( position= position_dodge())+
+#  labs(x = "Reported Tissue", fill= "Predicted Tissue") +
+#  theme_minimal()
 ```
-
+-->
 # Pfilter
 The pfilter function in the wateRmelon package filters data sets based on beadcounts and detection p-values.
 
@@ -801,7 +805,7 @@ RGset.pf <- pfilter(RGset)
 msetEPIC<-msetEPIC[rownames(betas(msetEPIC)) %in% rownames(getBeta(RGset.pf)),]
 
 #mark samples that fail the pfilter
-pFilterPass<-colnames(betas(msetEPIC)) %in% colnames(RGset.pf)#
+pFilterPass<-colnames(betas(msetEPIC)) %in% colnames(RGset.pf)
 
 QCmetrics<-cbind(QCmetrics,pFilterPass)
 SamplesFail[which(pFilterPass==FALSE)]<-TRUE
@@ -843,30 +847,20 @@ print(Stepsummary)
 The methylation data for just the passed samples and probes is quantile normalised using the dasen function from the wateRmelon package.
 
 ```{r normalisation, include=FALSE}
-#this removes all the failed samples from the mset (pfiltered probes already removed)
-
-msetEPIC.previo<-msetEPIC[,!SamplesFail]
-
 #then use dasen to normalise
-msetEPIC.dasen.previo<-dasen(msetEPIC.previo)
+msetEPIC.dasen.previo<-dasen(msetEPIC)
 
-betas <- betas(msetEPIC.previo)
+betas <- betas(msetEPIC)
 betas.dasen <- betas(msetEPIC.dasen.previo)
 
 normv <- qual(betas, betas.dasen)
 
-Q1 <- quantile(normv$rmsd, 0.25)
-Q3 <- quantile(normv$rmsd, 0.75)
-
-# Calculate the Interquartile Range (IQR)
-IQR <- Q3 - Q1
-
-# Define the upper threshold for outliers
+# Define the upper threshold for outliers based on Interquartile Range (IQR)
 # Anything above this value is considered an outlier
-threshold <- Q3 + (1.5 * IQR)
+threshold <- round(quantile(normv$rmsd, probs = 0.75) + (3 * IQR(normv$rmsd , na.rm = T)) , digits = 2)
 ```
 
-The 'qual' function in the wateRmelon package can be used to assess the degree of difference between normalised and raw betas. Those samples with Root Mean Square Deviation (RMSD) > `r threshold` will be filter out.
+The 'qual' function in the wateRmelon package can be used to assess the degree of difference between normalised and raw betas. Those samples with Root Mean Square Deviation (RMSD) > (Q3+3*IQR(RMSD))=`r threshold` will be filter out.
 
 ```{r qual, echo = FALSE}
 
@@ -874,14 +868,14 @@ plot(normv[,1:2], main = "Normalisation Violence")
 boxplot(normv$rmsd, main = "Normalisation Violence", ylab = "rmsd")
 abline(h = threshold, col = "red", lty = 2, lwd = 2)
 
-#SamplesFail<-as.logical(rep("FALSE", nrow(SampleSheet)))
 SamplesFail[which(normv[,1] >threshold)]<-TRUE
 
 identical(rownames(QCmetrics), colnames(betas.dasen))
 
 QCmetrics <- as.data.frame(as.matrix(QCmetrics))
-
-QCmetrics$NormV <- normv$rmsd[match(rownames(QCmetrics),rownames(normv))]
+QCmetrics$NormV <- NA
+index <- match(rownames(normv) , rownames(QCmetrics))
+QCmetrics$NormV[index] <- normv$rmsd
 QCmetrics$NormV.Passed <- (QCmetrics$NormV  <= threshold)
 
 Step9<-c(sum(QCmetrics$NormV >threshold, na.rm =TRUE),sum(SamplesFail))
