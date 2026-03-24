@@ -9,7 +9,7 @@ betas_file <- args[1]
 out_prefix <- args[2]
 ScriptDir <- args[3]
 ##########################################################################
-dir.create(path = dirname(out_prefix) , recursive = T)
+dir.create(path = dirname(out_prefix) , recursive = T , showWarnings = F)
 message("Reading beta matrix...")
 betas <- readRDS(betas_file)
 
