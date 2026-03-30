@@ -73,19 +73,21 @@ SamplesFailed=ifelse(is.na(OutPrefix),"",paste0(OutPrefix,"_EPICV1.SamplesFailed
 Normalised=ifelse(is.na(OutPrefix),"",paste0(OutPrefix,"_EPICV1.Normalized.rdat"))
 CellCount=ifelse(is.na(OutPrefix),"",paste0(OutPrefix,"_EPICV1.CellCount.rdat"))
 
+message("")
 message("Input arguments:")
 #message("    Working Directory: ",WorkingDir)
 message("    Script Directory: ",ScriptDir)
 message("    Output Prefix: ",OutPrefix)
 message("    idat files Directory: ",idatPath)
 message("    SampleSheet file: ",SampleSheet_file)
-message("    Optional Batches: ",paste(Optional_Batches , sep = ","))
+message("    Optional Batches: ",paste(Optional_Batches , collapse = ","))
 message("    Intensity Threshold: ",IntensityThreshold)
 message("    Mset object file: ",Mset_file)
 message("    RGset object file: ",RGset_file)
 message("    Passed samplesSheet file: ",SamplesPassed)
 message("    Failed samplesSheet file: ",SamplesFailed)
 message("    Normalized object file: ",Normalised)
+message("")
 
 ```
 
@@ -209,7 +211,7 @@ hist(U.median, xlab = "Median U intensity", main="Histogram of Median Unmethylat
 
 if(Optional_Batches[1] != ""){
   for (b in Optional_Batches) {
-    if(length(unique(SampleSheet[,b])) > 2){
+    if(length(unique(SampleSheet[,b])) >= 2){
       plotfactor<-factor(SampleSheet[,b], levels=c(unique(SampleSheet[,b]))) 
       par(mfrow = c(1,1))
       plot(M.median, U.median, pch = 16, xlab = "Median M intensity", ylab = "Median U intensity", 
