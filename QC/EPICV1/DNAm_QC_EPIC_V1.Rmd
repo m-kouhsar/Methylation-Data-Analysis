@@ -103,7 +103,7 @@ if(Optional_Batches[1] != "")
   mendatory_col = c(mendatory_col , Optional_Batches)
 if(!all(mendatory_col %in% colnames(SampleSheet))){
   stop("The following columns are not found in the SampleSheet file:\n",
-       setdiff(mendatory_col , colnames(SampleSheet)))
+       paste(setdiff(mendatory_col , colnames(SampleSheet)),collapse = ","))
 }
 SampleSheet$Basename2<-SampleSheet$Basename
 SampleSheet<-separate(data = SampleSheet, col = Basename2, into = c("SentrixID", "Position"), sep="_")
