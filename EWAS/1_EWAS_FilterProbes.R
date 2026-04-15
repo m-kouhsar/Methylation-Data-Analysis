@@ -27,7 +27,7 @@ manifest<-fread(paste0(ScriptDir , "/References/EPIC.V1.Manifest.tsv"), data.tab
 
 message("**********************************************************************\n")
 
-message("Step 1: Removing Cross Hydridising Probes ...")
+message("Step 1: Removing Cross Hybridising Probes ...")
 index <- rownames(betas) %in% crosslist
 betas.1 <-betas[!index,]
 message("        ",sum(index)," probes are Cross Hydridising.")
