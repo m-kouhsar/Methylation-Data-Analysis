@@ -48,6 +48,7 @@ suppressMessages(library("FlowSorted.Blood.450k"))
 suppressMessages(library("FlowSorted.CordBlood.450k"))
 suppressMessages(library(CETYGO))
 suppressMessages(library(stringr))
+suppressMessages(library(pander))
 
 ```
 
@@ -1065,3 +1066,5 @@ if(identical(rownames(SampleSheet), colnames(betas))){
 
 The final dataset contains `r nrow(SampleSheet)` samples and `r nrow(betas)` probes.
 
+# Session Information:
+`r pander(sessionInfo(), compact = FALSE)`
