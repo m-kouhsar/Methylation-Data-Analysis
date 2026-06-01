@@ -101,7 +101,8 @@ mendatory_col = c("Sex",
 "Basename",
 "Meth_Control",
 "Age",
-"Organ")
+"Organ",
+"Plate")
 if(Optional_Batches[1] != "")
   mendatory_col = c(mendatory_col , Optional_Batches)
 if(!all(mendatory_col %in% colnames(SampleSheet))){
@@ -831,7 +832,7 @@ The outlyx function in the wateRmelon package can be used to check if any of the
 ```{r outliers,echo= FALSE}
 betas <- betas(msetEPIC)
 outliers <- outlyx(betas)
-QCmetrics <- cbind(QCmetrics, outliers$outliers)
+QCmetrics <- cbind.data.frame(QCmetrics, Outlier = outliers$outliers)
 SamplesFail[which(outliers$outliers == TRUE)]<-TRUE
 Step8<-c(length(which(outliers$outliers == TRUE)),sum(SamplesFail))
 Stepsummary<-cbind(Stepsummary,Step8)
@@ -843,7 +844,7 @@ Stepsummary<-cbind(Stepsummary,Step8)
 print(Stepsummary)
 ```
 
-`r sum(which(outliers$outliers == TRUE))` samples have been picked as being outliers using the outlyx function and have been removed prior to normalisation.
+`r sum(outliers$outliers == TRUE)` samples have been picked as being outliers using the outlyx function and have been removed prior to normalisation.
 
 
 # Normalisation
